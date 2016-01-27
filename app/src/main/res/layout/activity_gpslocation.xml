@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:weightSum="1">
+
+
+    <LinearLayout
+        android:id="@+id/layButtonH"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:layout_weight="0.15">
+        <Button
+            android:id="@+id/btnLocation1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Location1"></Button>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:id="@+id/editGetLocation1"
+            android:editable="false">
+            <requestFocus></requestFocus>
+        </EditText>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layloadingH"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.20"
+        android:layout_width="fill_parent"
+        android:gravity="center">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:id="@+id/progressBar1"
+            android:layout_height="wrap_content"></ProgressBar>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layButton2"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:layout_weight="0.15">
+        <Button
+            android:id="@+id/btnLocation2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Location2"></Button>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:id="@+id/editGetLocation2"
+            android:editable="false">
+        <requestFocus></requestFocus>
+        </EditText>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/layloading"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.20"
+        android:layout_width="fill_parent"
+        android:gravity="center">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:id="@+id/progressBar2"
+            android:layout_height="wrap_content"></ProgressBar>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layButton3"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:layout_weight="0.15">
+        <Button
+            android:id="@+id/btnGetDistance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Distance"></Button>
+        <EditText
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.33"
+            android:id="@+id/editGetDistance"
+            android:editable="false">
+        <requestFocus></requestFocus>
+        </EditText>
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/resetButton"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center"
+        android:layout_weight="0.15">
+        <Button
+            android:id="@+id/reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset"></Button>
+    </LinearLayout>
+
+
+</LinearLayout>
