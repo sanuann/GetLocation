@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -23,7 +22,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import java.util.Calendar;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class GPSLocation extends Activity
         implements View.OnClickListener {
@@ -34,10 +36,6 @@ public class GPSLocation extends Activity
     private int id;
     private View view;
 
-    private Button btnGetLocation1 = null;
-    private Button btnGetLocation2 = null;
-    private Button btnDistance = null;
-    private Button btnReset = null;
     private EditText editLocation1 = null;
     private EditText editLocation2 = null;
     private EditText editDistance = null;
@@ -45,7 +43,6 @@ public class GPSLocation extends Activity
     private ProgressBar pb2 = null;
 
     private static final String TAG = "Debug";
-    private Boolean flag = false;
 
     private static final String[] PermissionsLocation =
             {
@@ -76,19 +73,19 @@ public class GPSLocation extends Activity
         pb2 = (ProgressBar) findViewById(R.id.progressBar2);
         pb2.setVisibility(View.INVISIBLE);
 
-        btnGetLocation1 = (Button) findViewById(R.id.btnLocation1);
+        Button btnGetLocation1 = (Button) findViewById(R.id.btnLocation1);
         btnGetLocation1.setOnClickListener(this);
 
-        btnGetLocation2 = (Button) findViewById(R.id.btnLocation2);
+        Button btnGetLocation2 = (Button) findViewById(R.id.btnLocation2);
         btnGetLocation2.setOnClickListener(this);
 
-        btnDistance = (Button) findViewById(R.id.btnGetDistance);
+        Button btnDistance = (Button) findViewById(R.id.btnGetDistance);
         btnDistance.setOnClickListener(this);
 
         locationManager = (LocationManager)
                 getSystemService(Context.LOCATION_SERVICE);
 
-        btnReset = (Button) findViewById(R.id.reset);
+        Button btnReset = (Button) findViewById(R.id.reset);
         btnReset.setOnClickListener(this);
 
     }
@@ -98,7 +95,7 @@ public class GPSLocation extends Activity
     public void onClick(View v) {
 
         view = v;
-
+        Boolean flag;
         switch (v.getId()) {
 
             case R.id.btnLocation1: {
@@ -108,8 +105,8 @@ public class GPSLocation extends Activity
                 if (flag) {
 
                     Log.v(TAG, "onClick Loc1");
+                    //appendLog("onClick Loc1");
                     pb1.setVisibility(View.VISIBLE);
-                    //final String permission = Manifest.permission.ACCESS_FINE_LOCATION;
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == (int) PackageManager.PERMISSION_GRANTED) {
                         getLocationData();
                         return;
@@ -117,12 +114,14 @@ public class GPSLocation extends Activity
 
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                         //Explain to the user why we need location access
-                        Log.v(TAG, "req location message");
+                        Log.v(TAG, "request location permission message");
+                        //appendLog("request location permission message");
                         Snackbar.make(v, "Location access is required to locate coordinates.", Snackbar.LENGTH_INDEFINITE)
                                 .show();
                         ActivityCompat.requestPermissions(this, PermissionsLocation, RequestLocationId);
                         return;
                     }
+
                 } else {
                     alertbox("Gps Status!!", "Your GPS is: OFF");
                 }
@@ -136,62 +135,34 @@ public class GPSLocation extends Activity
                 if (flag) {
 
                     Log.v(TAG, "onClick Loc2");
+                    //appendLog("onClick Loc2");
                     pb2.setVisibility(View.VISIBLE);
-
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == (int) PackageManager.PERMISSION_GRANTED) {
                         getLocationData();
                         return;
                     }
 
+
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                         //Explain to the user why we need location access
-                        Log.v(TAG, "req location message");
+                        Log.v(TAG, "ShowRequestPermissionRationale");
+                        //appendLog("ShowRequestPermissionRationale");
                         Snackbar.make(view, "Location access is required to locate coordinates.", Snackbar.LENGTH_INDEFINITE)
                                 .show();
                         ActivityCompat.requestPermissions(this, PermissionsLocation, RequestLocationId);
                         return;
 
-
                     }
-
-                    //ActivityCompat.requestPermissions(this, PermissionsLocation, RequestLocationId);
-
-                        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-                            Log.v(TAG, "Check if location2 permissions is enabled");
-                            final Handler handler = new Handler();
-
-                            new Thread(new Runnable() {
-                                public void run() {
-                                    try {
-                                        Thread.sleep(5000);
-                                    } catch (Exception e) {
-                                    } // Just catch the InterruptedException
-                                    // Now we use the Handler to post back to the main thread
-                                    handler.post(new Runnable() {
-                                        public void run() {
-                                            editLocation2.setText("Please Check your GPS Permission");
-                                            editLocation2.setTextColor(Color.parseColor("#FF0000"));
-                                            // Set the View's visibility back on the main UI Thread
-                                            pb2.setVisibility(View.INVISIBLE);
-                                        }
-                                    });
-                                }
-                            }).start();
-                            return;
-                        }
-*/
 
                 } else {
                     alertbox("Gps Status!!", "Your GPS is: OFF");
                 }
-
-
                 break;
             }
+
             case R.id.btnGetDistance: {
                 Log.v(TAG, "distance onClick");
+                //appendLog("distance onClick");
                 double distance;
                 try {
                     if (location1 != null && location2 != null) {
@@ -201,9 +172,11 @@ public class GPSLocation extends Activity
                     } else {
                         editDistance.setText("Distance not found");
                         Log.v(TAG, "location values not found");
+                        //appendLog("location values not found");
                     }
                 } catch (Exception ex) {
                     Log.v(TAG, ex.getMessage());
+                    //appendLog(ex.getMessage());
                     ex.printStackTrace();
                     editDistance.setText("Unable to find distance: ");
                 }
@@ -212,6 +185,8 @@ public class GPSLocation extends Activity
             }
 
             case R.id.reset: {
+                Log.v(TAG, "reset onClick");
+                //appendLog("distance onClick");
                 location1 = null;
                 editLocation1.setText("");
                 pb1.setVisibility(View.INVISIBLE);
@@ -229,55 +204,71 @@ public class GPSLocation extends Activity
 
     private void getLocationData() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == (int) PackageManager.PERMISSION_GRANTED) {
-            LocationListener locationListener = null;
             switch (id) {
                 case R.id.btnLocation1: {
-                    //editLocation1.setText("Getting Location..");
-                    Log.v(TAG, location1 + "<>" + locationManager);
+                    editLocation1.setText("Getting Location..");
                     try {
-                        location1 = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        //checks if location was received more than 1 minute ago
-                        if (location1 != null && location1.getTime() > Calendar.getInstance().getTimeInMillis() - 1 * 60 * 1000) {
-                            Log.v(TAG, location1 + "<");
-                            pb1.setVisibility(View.INVISIBLE);
-                            editLocation1.setText("Longitude: " +
-                                    location1.getLongitude() + " Latitude: " + location1.getLatitude());
-                        } else {
-                            locationListener = new MyLocationListener();
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                            locationManager.removeUpdates(locationListener);
-                            //editLocation1.setText("Unable to find the location");
-                        }
+                        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+                            @Override
+                            public void gotLocation(Location location) {
+                                //Got the location!
+                                location1 = location;
+                                Log.v(TAG, location1 + "<>" + locationManager);
+                                //appendLog(location1 + "<>" + locationManager);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        pb1.setVisibility(View.INVISIBLE);
+                                        editLocation1.setText("Longitude: " +
+                                                location1.getLongitude() + " Latitude: " + location1.getLatitude());
+                                    }
+                                });
+
+                            }
+                        };
+
+                        MyLocation myLocation = new MyLocation();
+                        myLocation.getLocation(this, locationResult);
 
                     } catch (Exception ex) {
                         Log.v(TAG, ex.getMessage());
+                        //appendLog(ex.getMessage());
                         ex.printStackTrace();
+                        pb1.setVisibility(View.INVISIBLE);
                         editLocation1.setText("Unable to get location: ");
                     }
                     break;
                 }
 
                 case R.id.btnLocation2: {
-                    //editLocation2.setText("Getting Location..");
-                    Log.v(TAG, location2 + "<>" + locationManager);
+                    editLocation2.setText("Getting Location..");
                     try {
-                        location2 = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-                        //checks if location was received more than 1 minute ago
-                        if (location2 != null && location2.getTime() > Calendar.getInstance().getTimeInMillis() - 1 * 60 * 1000) {
-                            Log.v(TAG, location2 + "<");
-                            pb2.setVisibility(View.INVISIBLE);
-                            editLocation2.setText("Longitude: " +
-                                    location2.getLongitude() + " Latitude: " + location2.getLatitude());
-                        } else {
-                            locationListener = new MyLocationListener();
-                            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
-                            locationManager.removeUpdates(locationListener);
-                            //editLocation2.setText("Unable to find the location");
-                        }
+                        MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
+                            @Override
+                            public void gotLocation(Location location) {
+                                //Got the location!
+                                location2 = location;
+                                Log.v(TAG, location2 + "<>" + locationManager);
+                                //appendLog(location2 + "<>" + locationManager);
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        pb2.setVisibility(View.INVISIBLE);
+                                        editLocation2.setText("Longitude: " +
+                                                location2.getLongitude() + " Latitude: " + location2.getLatitude());
+                                    }
+                                });
+                            }
+                        };
+
+                        MyLocation myLocation = new MyLocation();
+                        myLocation.getLocation(this, locationResult);
 
                     } catch (Exception ex) {
                         Log.v(TAG, ex.getMessage());
+                        //appendLog(ex.getMessage());
                         ex.printStackTrace();
+                        pb2.setVisibility(View.INVISIBLE);
                         editLocation2.setText("Unable to get location: ");
                     }
                     break;
@@ -294,11 +285,13 @@ public class GPSLocation extends Activity
                 Log.v(TAG, "grantResults.length>" + grantResults.length);
                 Log.v(TAG, "grantResults[0]>" + grantResults[0]);
                 Log.v(TAG, "grantResults[1]>" + grantResults[1]);
+                /*appendLog("grantResults.length>" + grantResults.length);
+                appendLog("grantResults[0]>" + grantResults[0]);
+                appendLog("grantResults[1]>" + grantResults[1]);*/
 
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 
                     Snackbar.make(view, "Permission Granted, Now you can access location data.", Snackbar.LENGTH_LONG).show();
-
                     getLocationData();
 
                 } else {
@@ -353,46 +346,29 @@ public class GPSLocation extends Activity
         alert.show();
     }
 
-    //*----------Listener class to get coordinates ------------- *//*
-    private class MyLocationListener implements LocationListener {
-
-        @Override
-        public void onLocationChanged(Location loc) {
-
-            if (loc != null) {
-                Log.v(TAG, "location change");
-                switch (id) {
-                    case R.id.btnLocation1: {
-
-                        pb1.setVisibility(View.INVISIBLE);
-                        location1 = loc;
-                        break;
-                    }
-                    case R.id.btnLocation2: {
-
-                        pb2.setVisibility(View.INVISIBLE);
-                        location2 = loc;
-                        break;
-                    }
-                }//end switch
-
+    /*public void appendLog(String text) {
+        File logFile = new File("sdcard/log.file");
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
             }
         }
-
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
-
+        try {
+            //BufferedWriter for performance, true to set append to file flag
+            BufferedWriter buf = new BufferedWriter(new FileWriter(logFile, true));
+            buf.append("---NEW SESSION---");
+            buf.append(text);
+            buf.newLine();
+            buf.flush();
+            buf.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
+    }*/
 
-        @Override
-        public void onProviderEnabled(String provider) {
 
-        }
-
-        @Override
-        public void onProviderDisabled(String provider) {
-
-        }
-
-    }
 }
